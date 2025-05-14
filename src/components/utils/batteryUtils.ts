@@ -1,7 +1,8 @@
 export const plugTypeMap: Record<number, string> = {
-  1: "Unplugged",
-  2: "AC",
-  3: "USB",
+  0: "Unplugged",
+  1: "AC",
+  2: "USB",
+  3: "Unknown",
 };
 
 export const batteryStatusMap: Record<number, string> = {

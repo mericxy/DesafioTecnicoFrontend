@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useHoveredData } from "./HoveredDataContext";
 import { batteryStatusMap, plugTypeMap } from "./utils/batteryUtils";
 
-// Cache de formatação para reduzir cálculos repetidos
 const formattedValueCache = new Map<string, string>();
 
 const getFormattedTimestamp = (timestamp: number | string | undefined) => {
@@ -54,14 +53,28 @@ const getFormattedVoltage = (value: number | undefined) => {
     return formattedValueCache.get(cacheKey) as string;
   }
   
-  const formatted = (value / 1000).toFixed(2);
+  const formatted = (value / 100).toFixed(2);
+  formattedValueCache.set(cacheKey, formatted);
+  
+  return formatted;
+};
+
+const getFormattedTemperature = (value: number | undefined) => {
+  if (value === undefined) return "-";
+  
+  const cacheKey = `temp_${value}`;
+  if (formattedValueCache.has(cacheKey)) {
+    return formattedValueCache.get(cacheKey) as string;
+  }
+  
+  const formatted = ( value / 1000).toFixed(1);
   formattedValueCache.set(cacheKey, formatted);
   
   return formatted;
 };
 
 function BatteryInfoTableComponent() {
-  const { hoveredData } = useHoveredData();
+  const { hoveredData, hoveredTempData } = useHoveredData();
 
   // Limitar o tamanho do cache para evitar uso excessivo de memória
   if (formattedValueCache.size > 1000) {
@@ -103,16 +116,20 @@ function BatteryInfoTableComponent() {
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Voltagem</TableCell>
-              <TableCell>{getFormattedVoltage(hoveredData?.voltage)} V</TableCell>
+              <TableCell>{getFormattedVoltage(hoveredData?.voltage)} Mv</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className="font-medium">Corrente Instantânea</TableCell>
               <TableCell>{getFormattedCurrent(hoveredData?.inst_curr)} mAh</TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Temperatura da Bateria</TableCell>
+              <TableCell>{getFormattedTemperature(hoveredTempData?.temp_bat)} °C</TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </div>
-      {!hoveredData && (
+      {!hoveredData && !hoveredTempData && (
         <p className="text-sm text-gray-500 mt-2 text-center">
           Passe o mouse sobre um gráfico para ver informações detalhadas
         </p>
@@ -121,5 +138,4 @@ function BatteryInfoTableComponent() {
   );
 }
 
-// Use memo para evitar renderizações desnecessárias
 export const BatteryInfoTable = memo(BatteryInfoTableComponent);

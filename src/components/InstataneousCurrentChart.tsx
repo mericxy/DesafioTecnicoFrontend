@@ -39,8 +39,7 @@ const formatTimestamp = (timestamp: number | string) => {
   return `${day}/${month}/${year} - ${hours}:${minutes}:${seconds}`;
 };
 
-// Memoize o componente de tooltip para evitar recálculos
-const CustomTooltip = memo(({ active, payload, label }: any) => {
+const CustomTooltip = memo(({ active, payload }: any) => {
   if (!active || !payload || !payload.length) return null;
   
   const data = payload[0].payload;
@@ -88,7 +87,6 @@ const CustomTooltip = memo(({ active, payload, label }: any) => {
 
 CustomTooltip.displayName = 'CustomTooltip';
 
-// Throttle a função para reduzir chamadas excessivas
 const useThrottleCallback = (callback: Function, delay: number) => {
   const lastCall = useMemo(() => ({ time: 0 }), []);
   
@@ -104,9 +102,7 @@ const useThrottleCallback = (callback: Function, delay: number) => {
 function InstataneousCurrentChartComponent({ data }: Props) {
     const { setHoveredData, hoveredTimestamp } = useHoveredData();
     
-    // Limitação de dados para melhorar a performance
     const limitedData = useMemo(() => {
-      // Se tiver muitos pontos, podemos amostrar apenas alguns
       if (data.length > 500) {
         const step = Math.ceil(data.length / 500);
         return data.filter((_, index) => index % step === 0);
@@ -114,20 +110,17 @@ function InstataneousCurrentChartComponent({ data }: Props) {
       return data;
     }, [data]);
 
-    // Throttle para limitar a frequência de atualizações
     const handleMouseMove = useThrottleCallback((props: any) => {
       if (props.activePayload && props.activePayload.length > 0) {
         const pointData = props.activePayload[0].payload;
-        // Evita atualizar com o mesmo ponto
         if (hoveredTimestamp !== pointData.timestamp) {
           setHoveredData(pointData);
         }
       }
-    }, 50); // Limita a 50ms (20 atualizações por segundo no máximo)
+    }, 50);
 
     const handleMouseLeave = useCallback(() => {
-      // Opcional: você pode descomentar para limpar os dados
-      // setHoveredData(null);
+       setHoveredData(null);
     }, []);
 
     // Melhorar performance de renderização do eixo X
@@ -143,33 +136,45 @@ function InstataneousCurrentChartComponent({ data }: Props) {
     return (
         <div className="rounded-xl shadow-md p-4 bg-white w-full">
             <h2 className="text-lg font-bold mb-2">Corrente Instantânea (mAh)</h2>
-            <ChartContainer config={chartConfig} className="h-72">
-                <LineChart 
-                  data={limitedData}
-                  onMouseMove={handleMouseMove}
-                  onMouseLeave={handleMouseLeave}
-                >
-                    <CartesianGrid vertical={false} />
-                    <XAxis dataKey="timestamp" 
-                            tickFormatter={xAxisTickFormatter}
-                            interval="preserveStartEnd"
-                            minTickGap={60} />
-                    <YAxis tickFormatter={formatCurrent}/>
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line
-                        dataKey="inst_curr"
-                        name="Corrente Instantânea"
-                        type="monotone" // Mudado de 'natural' para 'monotone' para melhor desempenho
-                        stroke={chartConfig.instCurr.color}
-                        strokeWidth={1}
-                        dot={false}
-                        isAnimationActive={false} // Desabilita animações para melhorar performance
-                    />
-                </LineChart>
-            </ChartContainer>
+            <ChartContainer 
+              config={chartConfig} 
+              className="h-72 md:h-80 lg:h-96 w-full"
+            >
+              <LineChart 
+                data={limitedData}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                width={500}
+                height={300}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 10,
+                  bottom: 5
+                }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis 
+                  dataKey="timestamp" 
+                  tickFormatter={xAxisTickFormatter}
+                  interval="preserveStartEnd"
+                  minTickGap={60} 
+                />
+                <YAxis tickFormatter={formatCurrent}/>
+                <Tooltip content={<CustomTooltip />} />
+                <Line
+                  dataKey="inst_curr"
+                  name="Corrente Instantânea"
+                  type="monotone"
+                  stroke={chartConfig.instCurr.color}
+                  strokeWidth={1}
+                  dot={false}
+                  isAnimationActive={false}
+                />
+              </LineChart>
+          </ChartContainer>
         </div>
     );
 }
 
-// Use memo para evitar renderizações desnecessárias
 export const InstataneousCurrentChart = memo(InstataneousCurrentChartComponent);

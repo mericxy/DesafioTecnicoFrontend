@@ -21,7 +21,7 @@ export default function App() {
       const batteryResponse = await fetch("/api/battery")
       const batteryJson = await batteryResponse.json()
       
-      // Se o conjunto de dados for muito grande, reduza-o
+      // Reduz conjunto de dados de bateria se necessário
       const processedBatteryData = batteryJson.length > 1000 
         ? batteryJson.filter((_: any, i: number) => i % Math.ceil(batteryJson.length / 1000) === 0)
         : batteryJson
@@ -31,7 +31,7 @@ export default function App() {
       const tempResponse = await fetch("/api/temperature")
       const tempJson = await tempResponse.json()
       
-      // Se o conjunto de dados for muito grande, reduza-o
+      // Reduz conjunto de dados de temperatura se necessário
       const processedTempData = tempJson.length > 1000 
         ? tempJson.filter((_: any, i: number) => i % Math.ceil(tempJson.length / 1000) === 0)
         : tempJson
@@ -46,48 +46,34 @@ export default function App() {
 
   useEffect(() => {
     fetchData()
-    
-    // Opcional: Atualizar dados a cada 5 minutos
-    // const intervalId = setInterval(fetchData, 5 * 60 * 1000)
-    // return () => clearInterval(intervalId)
   }, [fetchData])
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Dashboard de Bateria</h1>
-      
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <p className="text-lg">Carregando dados...</p>
-        </div>
-      ) : (
-        <HoveredDataProvider batteryData={batteryData} temperatureData={temperatureData}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="card p-4 bg-white rounded-lg shadow">
-              <BatteryLevelChart data={batteryData} />
-            </div>
-            
-            <div className="card p-4 bg-white rounded-lg shadow">
-              <TemperatureBatteryChart data={temperatureData} />
-            </div>
-            
-            {/* Quando você quiser adicionar os outros gráficos, 
-                basta descomentar estas linhas e modificar os componentes 
-                para também usarem o useHoveredData */}
-            {/* <div className="card p-4 bg-white rounded-lg shadow">
-              <TemperatureCpuChart data={temperatureData} />
-            </div> */}
-            
-            {/* <div className="card p-4 bg-white rounded-lg shadow">
-              <InstataneousCurrentChart data={batteryData} />
-            </div> */}
-          </div>
-          
-          <div className="mt-6">
-            <BatteryInfoTable />
-          </div>
-        </HoveredDataProvider>
-      )}
+    <HoveredDataProvider batteryDataset={batteryData} temperatureDataset={temperatureData}>
+      <div className="bg-gradient-to-b from-black to-gray-300 min-h-screen flex flex-col gap-4 p-4">
+  <h1 className="text-2xl font-bold text-white">Dashboard de Bateria</h1>
+  
+  {isLoading ? (
+    <div className="flex items-center justify-center h-64 text-white">
+      Carregando dados...
     </div>
-  );
+  ) : (
+    <div className="flex flex-col md:flex-row gap-4 w-full">
+      {/* Sidebar com a tabela - em dispositivos móveis fica no topo */}
+      <div className="w-full md:w-64 lg:w-80 flex-shrink-0">
+        <BatteryInfoTable />
+      </div>
+      
+      {/* Área principal com os gráficos */}
+      <div className="flex-grow flex flex-col gap-4">
+        <InstataneousCurrentChart data={batteryData} />
+        <BatteryLevelChart data={batteryData} />
+        <TemperatureBatteryChart data={temperatureData} />
+        <TemperatureCpuChart data={temperatureData} />
+      </div>
+    </div>
+  )}
+</div>
+    </HoveredDataProvider>
+  )
 }

@@ -150,7 +150,7 @@ function BatteryLevelChartComponent({ data }: Props) {
       <h2 className="text-lg font-bold mb-2">Nível da Bateria</h2>
       <ChartContainer 
         config={chartConfig} 
-        className="h-72 md:h-80 lg:h-96 w-full">
+        className="h-44 md:h-48 lg:h-52 w-full">
         <AreaChart
           data={limitedData}
           onMouseMove={handleMouseMove}

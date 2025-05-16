@@ -7,30 +7,6 @@ import { batteryStatusMap, plugTypeMap } from "./utils/batteryUtils";
 
 const formattedValueCache = new Map<string, string>();
 
-const getFormattedTimestamp = (timestamp: number | string | undefined) => {
-  if (!timestamp) return "-";
-  
-  const cacheKey = `timestamp_${timestamp}`;
-  if (formattedValueCache.has(cacheKey)) {
-    return formattedValueCache.get(cacheKey) as string;
-  }
-  
-  const date = new Date(timestamp);
-  
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString().slice(-2);
-  
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  
-  const formatted = `${day}/${month}/${year} - ${hours}:${minutes}:${seconds}`;
-  formattedValueCache.set(cacheKey, formatted);
-  
-  return formatted;
-};
-
 const getFormattedCurrent = (value: number | undefined) => {
   if (value === undefined) return "-";
   
@@ -94,10 +70,6 @@ function BatteryInfoTableComponent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">Data/Hora</TableCell>
-              <TableCell>{getFormattedTimestamp(hoveredData?.timestamp)}</TableCell>
-            </TableRow>
             <TableRow>
               <TableCell className="font-medium">Status da Bateria</TableCell>
               <TableCell>

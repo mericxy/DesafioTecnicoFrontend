@@ -135,7 +135,7 @@ function TemperatureCpuChartComponent({ data }: Props) {
       <h2 className="text-lg font-bold mb-2">Temperatura CPU (°C)</h2>
       <ChartContainer 
         config={chartConfig} 
-        className="h-72 md:h-80 lg:h-96 w-full">
+        className="h-44 md:h-48 lg:h-52 w-full">
         <LineChart
           data={limitedData}
           onMouseMove={handleMouseMove}

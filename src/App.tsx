@@ -50,7 +50,7 @@ export default function App() {
 
   return (
     <HoveredDataProvider batteryDataset={batteryData} temperatureDataset={temperatureData}>
-      <div className="bg-gradient-to-b from-black to-gray-300 min-h-screen flex flex-col gap-4 p-4">
+      <div className="bg-gradient-to-b from-black to-gray-700 min-h-screen flex flex-col gap-4 p-4">
   <h1 className="text-2xl font-bold text-white">Dashboard de Bateria</h1>
   
   {isLoading ? (
@@ -61,7 +61,9 @@ export default function App() {
     <div className="flex flex-col md:flex-row gap-4 w-full">
       {/* Sidebar com a tabela - em dispositivos móveis fica no topo */}
       <div className="w-full md:w-64 lg:w-80 flex-shrink-0">
-        <BatteryInfoTable />
+        <div className="md:fixed lg:fixed md:w-64 lg:w-80 flex-shrink-0">
+          <BatteryInfoTable />
+        </div>
       </div>
       
       {/* Área principal com os gráficos */}

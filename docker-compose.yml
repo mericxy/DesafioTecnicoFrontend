@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  react-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: react-typescript-app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host
+
+volumes:
+  node_modules:
